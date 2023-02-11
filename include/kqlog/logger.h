@@ -10,7 +10,7 @@ namespace kq
     {
         INFO,
         DEBUG,
-
+        WARNING
     };
 
     template<typename T = default_symbols, typename C = char>
@@ -21,12 +21,22 @@ namespace kq
         using encoding_type = C;
     public:
         logger();
+        logger(const std::string& filename); // TODO: implement me
+        logger(const logger& other); // TODO: implement me
+        logger(logger&& other) noexcept; // TODO: implement me
         ~logger();
 
-        logger& operator<<(const formatter<enum_type, encoding_type>& fmt) const;
+        logger& operator=(const logger& other); // TODO: implement me
+        logger& operator=(logger& other); // TODO: implement me
+
+        template<typename... Args>
+        void out(enum_type type, const std::string& fmt, Args&&... args)  { // TODO: implement me
+            // yyyy-mm-dd time type function line
+            // cout << format(fmt, std::forward<Args>(args)...); 
+        }
 
     private:
-
+        // std::mutex m_mutex; // TODO: implement me
     };
 
     template<typename T, typename C>
