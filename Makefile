@@ -5,6 +5,10 @@ CXXVERSION = -std=c++17
 SRC = main.cpp
 OUTPUT_DIR = output
 
+install:
+	-mkdir vendor
+	-mkdir vendor/magic_enum
+	git clone https://github.com/Neargye/magic_enum.git vendor/magic_enum/
 
 clean:
 	-rm output/*
