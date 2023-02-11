@@ -9,11 +9,9 @@ enum Color: uint8_t
 
 int main()
 {
-    Color color = Red;
-    auto name = magic_enum::enum_name(color);
-    std::cout << name << "\n";
-    std::cout << magic_enum::enum_count<Color>() + 20 << '\n';
-    std::cout << sizeof(std::vector<std::string>) << " " << sizeof(std::string) << '\n';
+    kq::logger Logger;
+    Logger.out(kq::default_symbols::INFO,"Robert");
+    std::cout<<Logger.get_time();
     return 0;
     
 

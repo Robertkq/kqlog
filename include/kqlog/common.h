@@ -6,5 +6,7 @@
 #include <string>
 #include <vector>
 #include <magic_enum.hpp>
+#include <fstream>
+#include <mutex>
 
 #endif
