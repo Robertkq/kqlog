@@ -2,7 +2,6 @@
 #define KQLOG_LOGGER_H
 
 #include "common.h"
-#include "formatter.h"
 #include <ctime>
 
 namespace kq
@@ -91,7 +90,10 @@ namespace kq
     template<typename... Args>
     void logger<T, C>::out(event_type type, const std::string& fmt, Args&&... args)
     {
-        m_file << get_time() << " " << fmt << '\n';
+        std::string my_format = get_time();
+        std::string_view my_type = magic_enum::enum_name(type);
+        std::string message = fmt::format(fmt, std::forward<Args>(args)...);
+        m_file << fmt::format( "{0} [{1}]: {2}", my_format, my_type, message);
     }
 
     template<typename T, typename C>

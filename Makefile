@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 CXX = clang++
-CXXFLAGS = -O3 -Ivendor/magic_enum/include/
+CXXFLAGS = -O3 -Ivendor/magic_enum/include/ -Ivendor/fmt/include
 CXXVERSION = -std=c++17
 SRC = main.cpp
 OUTPUT_DIR = output
