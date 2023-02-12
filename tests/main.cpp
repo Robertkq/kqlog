@@ -9,9 +9,11 @@ enum Color: uint8_t
 
 int main()
 {
-    kq::logger Logger;
-    Logger.out(kq::default_symbols::INFO,"Robert");
-    std::cout<<Logger.get_time();
+    kq::logger Logger("BIGTEST.txt");
+    kq::logger Logger2(Logger);
+    Logger2.set_time(kq::time_zone::UTC);
+    Logger2.out(kq::default_symbols::INFO,"Robert");
+    Logger2.out(kq::default_symbols::INFO, "Geroge");
     return 0;
     
 

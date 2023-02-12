@@ -30,8 +30,8 @@ namespace kq
 
     public:
         logger();
-        logger(const std::string& filename); // TODO: implement me
-        logger(const logger& other); // TODO: implement me
+        logger(const std::string& filename);
+        logger(const logger& other); 
         logger(logger&& other) noexcept; // TODO: implement me
         ~logger();
 
@@ -41,18 +41,13 @@ namespace kq
         void set_time(time_zone tz);
 
         template<typename... Args>
-        void out(event_type type, const std::string& fmt, Args&&... args)  
-        { 
-            std::time_t t = time(0);
-            // yyyy-mm-dd time type function line
-            // cout << format(fmt, std::forward<Args>(args)...); 
-        }
-        
+        void out(event_type type, const std::string& fmt, Args&&... args);
 
     private:
         std::mutex m_mutex;
         std::ofstream m_file;
-        time_zone m_time;
+        time_zone m_time = kq::time_zone::LOCALTIME;
+        std::string m_filename = "logs.txt";
 
     public:
         std::string get_time();
@@ -62,7 +57,20 @@ namespace kq
     template<typename T, typename C>
     logger<T, C>::logger()
     {
-        m_file.open("logs.txt",std::ofstream::out);
+        m_file.open(m_filename,std::ofstream::out);
+    }
+
+    template<typename T, typename C>
+    logger<T, C>::logger(const std::string& filename)
+    {
+        m_file.open(filename, std::ofstream::out);
+        m_filename = filename;
+    }
+
+    template<typename T, typename C>
+    logger<T, C>::logger(const logger& other)
+    {
+        m_file.open(other.m_filename, std::ofstream::out);
     }
 
     template<typename T, typename C>
@@ -75,6 +83,13 @@ namespace kq
     void logger<T, C>::set_time(time_zone tz)
     {
         m_time = tz;
+    }
+
+    template<typename T,typename C>
+    template<typename... Args>
+    void logger<T, C>::out(event_type type, const std::string& fmt, Args&&... args)
+    {
+        m_file << get_time() << fmt << '\n';
     }
 
     template<typename T, typename C>
@@ -103,9 +118,8 @@ namespace kq
         ret += temp;
         ret += " ";
         temp.assign(ugly_time+11, ugly_time+19);
-        ret += temp;
+        ret += temp + " ";
 
-        std::cout<<ugly_time<< '\n';
         return ret;
     }
 
