@@ -9,6 +9,8 @@ install:
 	-mkdir vendor
 	-mkdir vendor/magic_enum
 	git clone https://github.com/Neargye/magic_enum.git vendor/magic_enum/
+	-mkdir vendor/fmt
+	git clone https://github.com/fmtlib/fmt.git vendor/fmt/
 
 clean:
 	-rm output/*
