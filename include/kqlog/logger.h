@@ -47,6 +47,7 @@ namespace kq
         std::mutex m_mutex;
         std::ofstream m_file;
         time_zone m_time;
+        
         std::string m_filename;
         std::string m_directory;
 
