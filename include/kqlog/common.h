@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdint>
 #include <string>
+#include <string.h>
 #include <vector>
 #include <magic_enum.hpp>
 #include <fstream>

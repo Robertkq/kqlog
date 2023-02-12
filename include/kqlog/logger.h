@@ -29,16 +29,16 @@ namespace kq
         using encoding_type = C;
 
     public:
-        logger();
-        logger(const std::string& filename);
-        logger(const logger& other); 
+        logger(const std::string& filename, const std::string& directory);
+        logger(const logger& other) = delete;
         logger(logger&& other) noexcept; // TODO: implement me
         ~logger();
 
-        logger& operator=(const logger& other); // TODO: implement me
-        logger& operator=(logger& other); // TODO: implement me
+        logger& operator=(const logger& other) = delete;
+        logger& operator=(logger&& other); // TODO: implement me
 
         void set_time(time_zone tz);
+        void backup();
 
         template<typename... Args>
         void out(event_type type, const std::string& fmt, Args&&... args);
@@ -46,8 +46,9 @@ namespace kq
     private:
         std::mutex m_mutex;
         std::ofstream m_file;
-        time_zone m_time = kq::time_zone::LOCALTIME;
-        std::string m_filename = "logs.txt";
+        time_zone m_time;
+        std::string m_filename;
+        std::string m_directory;
 
     public:
         std::string get_time();
@@ -55,22 +56,10 @@ namespace kq
     };
 
     template<typename T, typename C>
-    logger<T, C>::logger()
+    logger<T, C>::logger(const std::string& filename, const std::string& directory)
+        : m_mutex(), m_file(directory + filename, std::ofstream::out), m_time(), m_filename(filename), m_directory(directory)
     {
-        m_file.open(m_filename,std::ofstream::out);
-    }
 
-    template<typename T, typename C>
-    logger<T, C>::logger(const std::string& filename)
-    {
-        m_file.open(filename, std::ofstream::out);
-        m_filename = filename;
-    }
-
-    template<typename T, typename C>
-    logger<T, C>::logger(const logger& other)
-    {
-        m_file.open(other.m_filename, std::ofstream::out);
     }
 
     template<typename T, typename C>
@@ -85,11 +74,23 @@ namespace kq
         m_time = tz;
     }
 
+    template<typename T, typename C>
+    void logger<T, C>::backup()
+    {
+        std::string info = get_time();
+        info[10] = '-';
+        info[4] = ':';
+        info[7] = ':';
+        system((std::string("mkdir ") + m_directory + std::string("backup/")).c_str());
+        system((std::string("cp ") + m_directory + m_filename + std::string (" ") + m_directory
+         + std::string("backup/") + info + m_filename ).c_str());
+    }
+
     template<typename T,typename C>
     template<typename... Args>
     void logger<T, C>::out(event_type type, const std::string& fmt, Args&&... args)
     {
-        m_file << get_time() << fmt << '\n';
+        m_file << get_time() << " " << fmt << '\n';
     }
 
     template<typename T, typename C>
@@ -118,7 +119,7 @@ namespace kq
         ret += temp;
         ret += " ";
         temp.assign(ugly_time+11, ugly_time+19);
-        ret += temp + " ";
+        ret += temp;
 
         return ret;
     }
