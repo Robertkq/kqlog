@@ -77,13 +77,15 @@ namespace kq
     template<typename T, typename C>
     void logger<T, C>::backup()
     {
+        m_file.close();
         std::string info = get_time();
         info[10] = '-';
         info[4] = ':';
         info[7] = ':';
         system((std::string("mkdir ") + m_directory + std::string("backup/")).c_str());
         system((std::string("cp ") + m_directory + m_filename + std::string (" ") + m_directory
-         + std::string("backup/") + info + m_filename ).c_str());
+         + std::string("backup/") + info + std::string("-") + m_filename ).c_str());
+        m_file.open(m_directory + m_filename, std::ofstream::app);
     }
 
     template<typename T,typename C>
