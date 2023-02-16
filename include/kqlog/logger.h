@@ -10,7 +10,9 @@ namespace kq
     {
         INFO,
         DEBUG,
-        WARNING
+        WARNING,
+        ERROR,
+        CRITICAL
     };
 
     enum class time_zone : uint8_t
@@ -50,6 +52,9 @@ namespace kq
             time_info(const std::tm* time);
             time_info(const std::tm& time);
 
+            string_type pretty_month() const;
+            string_type pretty_day() const;
+
             template<typename I>
             string_type str_from_int(I convert) const noexcept;
 
@@ -60,6 +65,7 @@ namespace kq
             int mday;
             int mon;
             int year;
+            int wday;
     };
 
     template<typename C>
@@ -69,7 +75,8 @@ namespace kq
 
     template<typename C>
     time_info<C>::time_info(const std::tm& tm)
-        : sec(tm.tm_sec), min(tm.tm_min), hour(tm.tm_hour), mday(tm.tm_mday), mon(tm.tm_mon + 1), year(tm.tm_year + 1900)
+        : sec(tm.tm_sec), min(tm.tm_min), hour(tm.tm_hour), mday(tm.tm_mday), mon(tm.tm_mon + 1),
+         year(tm.tm_year + 1900), wday(tm.tm_wday)
     {}
 
     template<typename C>
@@ -93,6 +100,35 @@ namespace kq
         }
         ret.shrink_to_fit();
         return ret;
+    }
+
+    template<typename C>
+    typename time_info<C>::string_type time_info<C>::pretty_month() const
+    {
+        if(mon == 1) return "Ian";
+        else if(mon == 2) return "Feb";
+        else if(mon == 3) return "Mar";
+        else if(mon == 4) return "Apr";
+        else if(mon == 5) return "May";
+        else if(mon == 6) return "Jun";
+        else if(mon == 7) return "Jul";
+        else if(mon == 8) return "Aug";
+        else if(mon == 9) return "Sep";
+        else if(mon == 10) return "Oct";
+        else if(mon == 11) return "Nov";
+        else return "Dec";
+    }
+    
+    template<typename C>
+    typename time_info<C>::string_type time_info<C>::pretty_day() const
+    {
+        if(wday == 0) return "Sun";
+        else if(wday == 1) return "Mon";
+        else if(wday == 2) return "Tue";
+        else if(wday == 3) return "Wed";
+        else if(wday == 4) return "Thu";
+        else if(wday == 5) return "Fri";
+        else return "Sat";
     }
 
     template<typename T, typename C>
@@ -155,6 +191,7 @@ namespace kq
         string_type m_filename;
         string_type m_directory;
         string_type m_logpattern;
+        string_type m_realpattern;
 
         time_zone m_timezone;
 
@@ -162,11 +199,14 @@ namespace kq
         time_info get_time() const;
         string_type month_to_string(const string_type&);
     };
+    
+    // {0}/{1}/{2} {3}:{4}:{5} [{6}] [{7}:{8}] [Thr {9}] | {10}\n
 
     template<typename T, typename C>
     logger<T, C>::logger(const string_type& filename, const string_type& directory, time_zone tz)
         : m_mutex(), m_file(directory + filename, ofstream_type::out), m_filename(filename), m_directory(directory),
-          m_logpattern("{0}/{1}/{2} {3}:{4}:{5} [{6}] [{7}:{8}] [Thr{9}] | {10}\n"), m_timezone(tz)
+          m_logpattern(), m_realpattern(),
+          m_timezone(tz)
     {}
 
     template<typename T, typename C>
@@ -183,6 +223,12 @@ namespace kq
     logger<T, C>::~logger()
     {
         std::unique_lock lock(m_mutex);
+    }
+
+    template<typename T, typename C>
+    void logger<T, C>::set_pattern(const string_type& new_pattern)
+    {
+        m_logpattern = new_pattern;
     }
 
     template<typename T, typename C>
@@ -222,6 +268,8 @@ namespace kq
         string_type my_line = ti.str_from_int(sl.line()); // id 8
         string_type my_thread = ti.str_from_int(std::hash<std::thread::id>{}(std::this_thread::get_id())); // 9
         const string_type& my_message = msg.fmt(); // id 10
+        string_type my_pretty_month = ti.pretty_month();
+        string_type my_pretty_day = ti.pretty_day();
 
         m_file << fmt::format(m_logpattern, my_years, my_months, my_days,
             my_hours, my_minutes, my_seconds, my_type, my_function, my_line,
