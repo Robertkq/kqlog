@@ -17,6 +17,7 @@ clone the repo and run `make install`, the script will clone [magic_enum](https:
 
 ## Pattern flags
 | flag | meaning | example |
+| :----: | :-------: | :-------: |
 |`%V`|The log itself|"your text"
 |`%t`|Event type|"Debug" / "Info" / "YourEvent"
 |`%Y`|Year|"2023"|
