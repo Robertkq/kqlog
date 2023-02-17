@@ -52,8 +52,8 @@ namespace kq
             time_info(const std::tm* time);
             time_info(const std::tm& time);
 
-            string_type pretty_month() const;
-            string_type pretty_day() const;
+            string_type pretty_month(bool abbr) const;
+            string_type pretty_day(bool abbr) const;
 
             template<typename I>
             string_type str_from_int(I convert) const noexcept;
@@ -103,32 +103,32 @@ namespace kq
     }
 
     template<typename C>
-    typename time_info<C>::string_type time_info<C>::pretty_month() const
+    typename time_info<C>::string_type time_info<C>::pretty_month(bool abbr) const
     {
-        if(mon == 1) return "Ian";
-        else if(mon == 2) return "Feb";
-        else if(mon == 3) return "Mar";
-        else if(mon == 4) return "Apr";
+        if(mon == 1) return abbr ? "Jan" : "January";
+        else if(mon == 2) return abbr ? "Feb" : "February";
+        else if(mon == 3) return abbr ? "Mar" : "March";
+        else if(mon == 4) return abbr ? "Apr" : "April";
         else if(mon == 5) return "May";
-        else if(mon == 6) return "Jun";
-        else if(mon == 7) return "Jul";
-        else if(mon == 8) return "Aug";
-        else if(mon == 9) return "Sep";
-        else if(mon == 10) return "Oct";
-        else if(mon == 11) return "Nov";
-        else return "Dec";
+        else if(mon == 6) return abbr ? "Jun" : "June";
+        else if(mon == 7) return abbr ? "Jul" : "July";
+        else if(mon == 8) return abbr ? "Aug" : "August";
+        else if(mon == 9) return abbr ? "Sep" : "September";
+        else if(mon == 10) return abbr ? "Oct" : "October";
+        else if(mon == 11) return abbr ? "Nov" : " November";
+        else return abbr ? "Dec" : "December";
     }
     
     template<typename C>
-    typename time_info<C>::string_type time_info<C>::pretty_day() const
+    typename time_info<C>::string_type time_info<C>::pretty_day(bool abbr) const
     {
-        if(wday == 0) return "Sun";
-        else if(wday == 1) return "Mon";
-        else if(wday == 2) return "Tue";
-        else if(wday == 3) return "Wed";
-        else if(wday == 4) return "Thu";
-        else if(wday == 5) return "Fri";
-        else return "Sat";
+        if(wday == 0) return abbr ? "Sun" : "Sunday";
+        else if(wday == 1) return abbr ? "Mon" : "Monday";
+        else if(wday == 2) return abbr ? "Tue" : "Tuesday";
+        else if(wday == 3) return abbr ? "Wed" : "Wednesday";
+        else if(wday == 4) return abbr ? "Thu" : "Thursday";
+        else if(wday == 5) return abbr ? "Fri" : "Friday";
+        else return abbr ? "Sat" : "Saturday";
     }
 
     template<typename T, typename C>
@@ -205,7 +205,7 @@ namespace kq
     template<typename T, typename C>
     logger<T, C>::logger(const string_type& filename, const string_type& directory, time_zone tz)
         : m_mutex(), m_file(directory + filename, ofstream_type::out), m_filename(filename), m_directory(directory),
-          m_logpattern(), m_realpattern(),
+          m_logpattern("[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [%F@%L] %V" ), m_realpattern("[{2}-{3}-{6} {9}:{10}:{11}] [{1}] [{14}@{13}] {0}"),
           m_timezone(tz)
     {}
 
@@ -253,31 +253,37 @@ namespace kq
 
     template<typename T,typename C>
     template<typename... Args>
-    void logger<T, C>::out(event_type type, const log<event_type, encoding_type>& msg, 
+    void logger<T, C>::out(event_type _type, const log<event_type, encoding_type>& msg, 
     std::experimental::source_location sl)
     {
         time_info ti = get_time();
-        string_type my_years = ti.str_from_int(ti.year); // id 0
-        string_type my_months = ti.str_from_int(ti.mon); // id 1
-        string_type my_days = ti.str_from_int(ti.mday); // id 2
-        string_type my_hours = ti.str_from_int(ti.hour); // id 3
-        string_type my_minutes = ti.str_from_int(ti.min); // id 4
-        string_type my_seconds = ti.str_from_int(ti.sec); // id 5
-        std::string_view my_type = magic_enum::enum_name(type); // id 6
-        string_type my_function = sl.function_name(); // id 7
-        string_type my_line = ti.str_from_int(sl.line()); // id 8
-        string_type my_thread = ti.str_from_int(std::hash<std::thread::id>{}(std::this_thread::get_id())); // 9
-        const string_type& my_message = msg.fmt(); // id 10
-        string_type my_pretty_month = ti.pretty_month();
-        string_type my_pretty_day = ti.pretty_day();
+        const string_type& message      = msg.fmt();                    // flag: %V -> 0 
+        std::string_view type           = magic_enum::enum_name(_type);  // flag: %T -> 1
+        string_type years               = ti.str_from_int(ti.year);     // flag: %Y -> 2
+        string_type months              = ti.str_from_int(ti.mon);      // flag: %M -> 3
+        string_type pretty_full_month   = ti.pretty_month(false);       // flag: %m -> 4
+        string_type pretty_abbr_month   = ti.pretty_month(true);        // flag: %b -> 5
+        string_type days                = ti.str_from_int(ti.mday);     // flag: %D -> 6
+        string_type pretty_full_day     = ti.pretty_day(false);         // flag: %d -> 7
+        string_type pretty_abbr_day     = ti.pretty_day(true);          // flag: %B -> 8
+        string_type hours               = ti.str_from_int(ti.hour);     // flag: %H -> 9
+        string_type minutes             = ti.str_from_int(ti.min);      // flag: %N -> 10
+        string_type seconds             = ti.str_from_int(ti.sec);      // flag: %S -> 11
+        string_type thread              = ti.str_from_int(std::hash<std::thread::id>{}(std::this_thread::get_id())); // flag: %t -> 12
+        string_type line                = ti.str_from_int(sl.line());   // flag: %L -> 13
+        string_type function            = sl.function_name();           // flag: %F -> 14
+        string_type source              = sl.file_name();               // flag: %s -> 15
+        
 
-        m_file << fmt::format(m_logpattern, my_years, my_months, my_days,
-            my_hours, my_minutes, my_seconds, my_type, my_function, my_line,
-            my_thread, my_message);
+        m_file << fmt::format(m_realpattern, message, type, years,
+             months, pretty_full_month, pretty_abbr_month, days,
+             pretty_full_day, pretty_abbr_day, hours, minutes,
+             seconds, thread, line, function, source);
 
-        std::cout << fmt::format(m_logpattern, my_years, my_months, my_days,
-            my_hours, my_minutes, my_seconds, my_type, my_function, my_line,
-            my_thread, my_message);
+        std::cout << fmt::format(m_realpattern, message, type, years,
+             months, pretty_full_month, pretty_abbr_month, days,
+             pretty_full_day, pretty_abbr_day, hours, minutes,
+             seconds, thread, line, function, source);
     }
 
     template<typename T, typename C>
