@@ -176,7 +176,7 @@ namespace kq
         logger& operator=(const logger& other) = delete;
         logger& operator=(logger&& other); // add me
 
-        void set_pattern(const string_type& new_pattern);
+        void set_pattern(const string_type& new_pattern = "[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}\n");
         void set_time(time_zone tz) noexcept;
         void backup();
 
@@ -195,17 +195,26 @@ namespace kq
 
         time_zone m_timezone;
 
+        static std::unordered_map<C, string_type> s_flags;
+
     private:
         time_info get_time() const;
-        string_type month_to_string(const string_type&);
+        string_type convert_pattern(string_type);
     };
-    
+
+
+    template<typename T, typename C>
+    std::unordered_map<C, typename logger<T, C>::string_type> logger<T, C>::s_flags = {
+        {'V',"0"},{'T',"1"},{'Y',"2"},{'M',"3"},{'m',"4"},{'b',"5"},{'D',"6"},{'d',"7"},
+        {'B',"8"},{'H',"9"},{'N',"10"},{'S',"11"},{'t',"12"},{'L',"13"},{'F',"14"},{'s',"15"},
+        {'%',"%"}
+    };
     // {0}/{1}/{2} {3}:{4}:{5} [{6}] [{7}:{8}] [Thr {9}] | {10}\n
 
     template<typename T, typename C>
     logger<T, C>::logger(const string_type& filename, const string_type& directory, time_zone tz)
         : m_mutex(), m_file(directory + filename, ofstream_type::out), m_filename(filename), m_directory(directory),
-          m_logpattern("[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [%F@%L] %V" ), m_realpattern("[{2}-{3}-{6} {9}:{10}:{11}] [{1}] [{14}@{13}] {0}"),
+          m_logpattern("[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}\n" ), m_realpattern("[{2}-{3}-{6} {9}:{10}:{11}] [{1}] [{14}@{13}] {0}\n"),
           m_timezone(tz)
     {}
 
@@ -229,6 +238,7 @@ namespace kq
     void logger<T, C>::set_pattern(const string_type& new_pattern)
     {
         m_logpattern = new_pattern;
+        m_realpattern = convert_pattern(m_logpattern);
     }
 
     template<typename T, typename C>
@@ -240,14 +250,23 @@ namespace kq
     template<typename T, typename C>
     void logger<T, C>::backup()
     {
+        static bool initialized = false;
+        if(!initialized)
+        {
+            initialized = true;
+            system((string_type("mkdir -p ") + m_directory + string_type("backup")).c_str());
+        }
         m_file.close();
-        string_type info = get_time();
-        info[10] = '-';
-        info[4] = ':';
-        info[7] = ':';
-        system((string_type("mkdir ") + m_directory + string_type("backup/")).c_str());
+        time_info ti = get_time();
+        string_type year = ti.str_from_int(ti.year);
+        string_type month = ti.str_from_int(ti.mon);
+        string_type day = ti.str_from_int(ti.mday);
+        string_type hour = ti.str_from_int(ti.hour);
+        string_type minute = ti.str_from_int(ti.min);
+        string_type second = ti.str_from_int(ti.sec);
+        string_type backreturn = year +"-" + month + "-" + day + "_" + hour + ":" + minute + ":" + second;
         system((string_type("cp ") + m_directory + m_filename + string_type (" ") + m_directory
-         + string_type("backup/") + info + string_type("-") + m_filename ).c_str());
+         + string_type("backup/") + backreturn + string_type("-") + m_filename ).c_str());
         m_file.open(m_directory + m_filename, ofstream_type::app);
     }
 
@@ -299,33 +318,24 @@ namespace kq
     }
 
     template<typename T, typename C>
-    typename logger<T, C>::string_type logger<T, C>::month_to_string(const string_type& str)
+    typename logger<T, C>::string_type logger<T, C>::convert_pattern(string_type logpattern)
     {
-        if(str == "Ian")
-            return "01";
-        else if(str == "Feb")
-            return "02";
-        else if(str == "Mar")
-            return "03";
-        else if(str == "Apr")
-            return "04";
-        else if(str == "May")
-            return "05";
-        else if(str == "Jun")
-            return "06";
-        else if(str == "Jul")
-            return "07";
-        else if(str == "Aug")
-            return "08";
-        else if(str == "Sep")
-            return "09";
-        else if(str == "Oct")
-            return "10";
-        else if(str == "Nov")
-            return "11";
-        else if(str == "Dec")
-            return "12";
-        else throw std::runtime_error("Bad month code");
+        int poz = 0;
+        char aux;
+        for(int i=0; i<logpattern.size(); ++i)
+        {
+            if(logpattern[i] == '{')
+            {
+                if(logpattern[i+1] == '%')
+                {
+                    aux = logpattern[i+2];
+                    logpattern.erase(logpattern.begin()+i+1);
+                    logpattern.erase(logpattern.begin()+i+1);
+                    logpattern.insert(i+1, s_flags[aux]);
+                }
+            }
+        }
+        return logpattern;
     }
 
 } // namespace kq
