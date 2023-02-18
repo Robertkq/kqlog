@@ -143,19 +143,55 @@ namespace kq
         public:
             template<typename... Args>
             log(const string_type& fmt, Args&&... args);
+            
+            string_type convert(string_type arg) const;
 
             string_type& fmt() { return m_fmt; }
             const string_type& fmt() const { return m_fmt; } 
 
         private:
-            string_type m_fmt;    
+            string_type m_fmt; 
+
+            static std::unordered_map<C, string_type> s_flags;   
+    };
+
+    template<typename T, typename C>
+    std::unordered_map<C, typename log<T, C>::string_type> log<T, C>::s_flags = {
+        {'K',"\033[30m"},{'R',"\033[31m"},{'G',"\033[32m"},{'y',"\033[33m"},
+        {'E',"\033[34m"},{'g',"\033[35m"},{'C',"\033[36m"},{'W',"\033[37m"}
     };
 
     template<typename T, typename C>
     template<typename... Args>
     log<T, C>::log(const string_type& fmt, Args&&... args)
-        : m_fmt(fmt::format(fmt, std::forward<Args>(args)...))
+        : m_fmt(fmt::format(convert(fmt), std::forward<Args>(args)...))
     {}
+
+    template<typename T, typename C>
+    typename log<T, C>::string_type log<T, C>::convert(string_type arg) const
+    {
+        char aux;
+        for(int i=0; i<arg.size(); ++i)
+        {
+            if(arg[i] == '{')
+            {
+                if(arg[i+1] == '%')
+                {
+                    aux = arg[i+2];
+                    if(aux == 'K' || aux == 'R' || aux == 'G' || aux == 'y' ||
+                       aux == 'E' || aux == 'g' || aux == 'C' || aux == 'W')
+                    {
+                        arg.erase(arg.begin()+i);
+                        arg.erase(arg.begin()+i);
+                        arg.erase(arg.begin()+i);
+                        arg.erase(arg.begin()+i);
+                        arg.insert(i, s_flags[aux]);
+                    }
+                }
+            }
+        }
+        return arg;
+    }
 
     template<typename T = default_symbols, typename C = char>
     class logger
@@ -175,7 +211,10 @@ namespace kq
 
         logger& operator=(const logger& other) = delete;
         logger& operator=(logger&& other); // add me
-
+        const string_type& get_realpattern() const
+        {
+            return m_realpattern;
+        }
         void set_pattern(const string_type& new_pattern = "[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}\n");
         void set_time(time_zone tz) noexcept;
         void set_filter(const std::vector<event_type>& toFilter, bool filterMode = true);
@@ -204,12 +243,13 @@ namespace kq
         string_type convert_pattern(string_type);
     };
 
-
+    //K, R, G, y, E, g, C, W
     template<typename T, typename C>
     std::unordered_map<C, typename logger<T, C>::string_type> logger<T, C>::s_flags = {
         {'V',"0"},{'T',"1"},{'Y',"2"},{'M',"3"},{'m',"4"},{'b',"5"},{'D',"6"},{'d',"7"},
         {'B',"8"},{'H',"9"},{'N',"10"},{'S',"11"},{'t',"12"},{'L',"13"},{'F',"14"},{'s',"15"},
-        {'%',"%"}
+        {'%',"%"},{'K',"\033[30m"},{'R',"\033[31m"},{'G',"\033[32m"},{'y',"\033[33m"},
+        {'E',"\033[34m"},{'g',"\033[35m"},{'C',"\033[36m"},{'W',"\033[37m"}
     };
     // {0}/{1}/{2} {3}:{4}:{5} [{6}] [{7}:{8}] [Thr {9}] | {10}\n
 
@@ -292,7 +332,7 @@ namespace kq
         std::unique_lock lock(m_mutex);
         time_info ti = get_time();
         const string_type& message      = msg.fmt();                    // flag: %V -> 0 
-        std::string_view type           = magic_enum::enum_name(_type);  // flag: %T -> 1
+        std::string_view type           = magic_enum::enum_name(_type); // flag: %T -> 1
         string_type years               = ti.str_from_int(ti.year);     // flag: %Y -> 2
         string_type months              = ti.str_from_int(ti.mon);      // flag: %M -> 3
         string_type pretty_full_month   = ti.pretty_month(false);       // flag: %m -> 4
@@ -331,7 +371,7 @@ namespace kq
         std::cout << fmt::format(m_realpattern, message, type, years,
              months, pretty_full_month, pretty_abbr_month, days,
              pretty_full_day, pretty_abbr_day, hours, minutes,
-             seconds, thread, line, function, source);
+             seconds, thread, line, function, source) << "\033[0m";
     }
 
     template<typename T, typename C>
@@ -349,18 +389,30 @@ namespace kq
     template<typename T, typename C>
     typename logger<T, C>::string_type logger<T, C>::convert_pattern(string_type logpattern)
     {
-        int poz = 0;
         char aux;
         for(int i=0; i<logpattern.size(); ++i)
         {
             if(logpattern[i] == '{')
             {
+                //K, R, G, y, E, g, C, W
                 if(logpattern[i+1] == '%')
                 {
                     aux = logpattern[i+2];
-                    logpattern.erase(logpattern.begin()+i+1);
-                    logpattern.erase(logpattern.begin()+i+1);
-                    logpattern.insert(i+1, s_flags[aux]);
+                    if(aux == 'K' || aux == 'R' || aux == 'G' || aux == 'y' ||
+                       aux == 'E' || aux == 'g' || aux == 'C' || aux == 'W')
+                    {
+                        logpattern.erase(logpattern.begin()+i);
+                        logpattern.erase(logpattern.begin()+i);
+                        logpattern.erase(logpattern.begin()+i);
+                        logpattern.erase(logpattern.begin()+i);
+                        logpattern.insert(i, s_flags[aux]);
+                    }
+                    else
+                    {
+                        logpattern.erase(logpattern.begin()+i+1);
+                        logpattern.erase(logpattern.begin()+i+1);
+                        logpattern.insert(i+1, s_flags[aux]);
+                    }
                 }
             }
         }
