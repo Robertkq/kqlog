@@ -46,7 +46,7 @@ namespace kq
     {
         public:
             using encoding_type = C;
-            using string_type = std::conditional_t<std::is_same_v<C, char>, std::string, std::wstring>;
+            using string_type   = std::conditional_t<std::is_same_v<C, char>, std::string, std::wstring>;
 
         public:
             time_info(const std::tm* time);
@@ -135,10 +135,10 @@ namespace kq
     class log
     {
         public:
-            using event_type = T;
+            using event_type    = T;
             using encoding_type = C;
-            using string_type = std::conditional_t<std::is_same_v<encoding_type, char>, std::string, std::wstring>;
-            using time_info = time_info<encoding_type>;
+            using string_type   = std::conditional_t<std::is_same_v<encoding_type, char>, std::string, std::wstring>;
+            using time_info     = time_info<encoding_type>;
 
         public:
             template<typename... Args>
@@ -161,11 +161,11 @@ namespace kq
     class logger
     {
     public:
-        using event_type = T;
+        using event_type    = T;
         using encoding_type = C;
-        using string_type = std::conditional_t<std::is_same_v<encoding_type, char>, std::string, std::wstring>;
+        using string_type   = std::conditional_t<std::is_same_v<encoding_type, char>, std::string, std::wstring>;
         using ofstream_type = std::conditional_t<std::is_same_v<encoding_type, char>, std::ofstream, std::wofstream>;
-        using time_info = time_info<encoding_type>;
+        using time_info     = time_info<encoding_type>;
 
     public:
         logger(const string_type& filename = "logs.txt", const string_type& directory = "output/", time_zone = time_zone::UTC);
@@ -178,6 +178,7 @@ namespace kq
 
         void set_pattern(const string_type& new_pattern = "[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}\n");
         void set_time(time_zone tz) noexcept;
+        void set_filter(const std::vector<event_type>& toFilter, bool filterMode = true);
         void backup();
 
         template<typename... Args>
@@ -185,15 +186,16 @@ namespace kq
                std::experimental::source_location::current());
 
     private:
-        std::mutex m_mutex;
-        ofstream_type m_file;
+        std::mutex              m_mutex;
+        ofstream_type           m_file;
         
-        string_type m_filename;
-        string_type m_directory;
-        string_type m_logpattern;
-        string_type m_realpattern;
-
-        time_zone m_timezone;
+        string_type             m_filename;
+        string_type             m_directory;
+        string_type             m_logpattern;
+        string_type             m_realpattern;
+        std::vector<event_type> m_tofilter;
+        bool                    m_filterin; // 1 means filter IN, 0 means filter OUT
+        time_zone               m_timezone;
 
         static std::unordered_map<C, string_type> s_flags;
 
@@ -237,14 +239,21 @@ namespace kq
     template<typename T, typename C>
     void logger<T, C>::set_pattern(const string_type& new_pattern)
     {
-        m_logpattern = new_pattern;
-        m_realpattern = convert_pattern(m_logpattern);
+        m_logpattern    = new_pattern;
+        m_realpattern   = convert_pattern(m_logpattern);
     }
 
     template<typename T, typename C>
     void logger<T, C>::set_time(time_zone tz) noexcept
     {
         m_timezone = tz;
+    }
+
+    template<typename T, typename C>
+    void logger<T, C>::set_filter(const std::vector<event_type>& toFilter, bool filterMode = true)
+    {
+        m_tofilter = toFilter;
+        m_filterin = filterMode;
     }
 
     template<typename T, typename C>
@@ -257,13 +266,13 @@ namespace kq
             system((string_type("mkdir -p ") + m_directory + string_type("backup")).c_str());
         }
         m_file.close();
-        time_info ti = get_time();
-        string_type year = ti.str_from_int(ti.year);
-        string_type month = ti.str_from_int(ti.mon);
-        string_type day = ti.str_from_int(ti.mday);
-        string_type hour = ti.str_from_int(ti.hour);
-        string_type minute = ti.str_from_int(ti.min);
-        string_type second = ti.str_from_int(ti.sec);
+        time_info ti        = get_time();
+        string_type year    = ti.str_from_int(ti.year);
+        string_type month   = ti.str_from_int(ti.mon);
+        string_type day     = ti.str_from_int(ti.mday);
+        string_type hour    = ti.str_from_int(ti.hour);
+        string_type minute  = ti.str_from_int(ti.min);
+        string_type second  = ti.str_from_int(ti.sec);
         string_type backreturn = year +"-" + month + "-" + day + "_" + hour + ":" + minute + ":" + second;
         system((string_type("cp ") + m_directory + m_filename + string_type (" ") + m_directory
          + string_type("backup/") + backreturn + string_type("-") + m_filename ).c_str());
@@ -292,12 +301,19 @@ namespace kq
         string_type line                = ti.str_from_int(sl.line());   // flag: %L -> 13
         string_type function            = sl.function_name();           // flag: %F -> 14
         string_type source              = sl.file_name();               // flag: %s -> 15
-        
 
         m_file << fmt::format(m_realpattern, message, type, years,
              months, pretty_full_month, pretty_abbr_month, days,
              pretty_full_day, pretty_abbr_day, hours, minutes,
              seconds, thread, line, function, source);
+
+        // Check if the event_type has to be filtered out/in
+        if(m_tofilter.size() > 0)
+        {
+            auto it = std::find(m_tofilter.begin(), m_tofilter.end());
+            if ( (it == m_tofilter.end() && filterMode) ||  (it != m_tofilter.end() && !filterMode) )
+                return;
+        }
 
         std::cout << fmt::format(m_realpattern, message, type, years,
              months, pretty_full_month, pretty_abbr_month, days,
