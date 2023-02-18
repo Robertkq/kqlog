@@ -12,6 +12,16 @@ clone the repo and run `make install`, the script will clone [magic_enum](https:
 
 ## Features
 ---
+* Header only
+* Allows user defined log types(/levels)
+* Log filtering (for console)
+* Log color (for console) (in progress)
+* Custom formtting for log pattern
+* Rich formatting, by [fmt](https://github.com/fmtlib/fmt)
+* Thread safe
+* Backup
+* xml for .npp log files (in progress)
+
 ## Usage example
 ---
 
