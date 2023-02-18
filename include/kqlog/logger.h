@@ -215,16 +215,17 @@ namespace kq
 
     template<typename T, typename C>
     logger<T, C>::logger(const string_type& filename, const string_type& directory, time_zone tz)
-        : m_mutex(), m_file(directory + filename, ofstream_type::out), m_filename(filename), m_directory(directory),
-          m_logpattern("[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}\n" ), m_realpattern("[{2}-{3}-{6} {9}:{10}:{11}] [{1}] [{14}@{13}] {0}\n"),
-          m_timezone(tz)
+        :   m_mutex(), m_file(directory + filename, ofstream_type::out), m_filename(filename), m_directory(directory),
+            m_logpattern("[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}" ), m_realpattern("[{2}-{3}-{6} {9}:{10}:{11}] [{1}] [{14}@{13}] {0}"),
+            m_tofilter(), m_filterin(), m_timezone(tz)
     {}
 
     template<typename T, typename C>
     logger<T, C>::logger(logger&& other) noexcept
-        : m_mutex(), m_file(std::move(other.m_file)),
-         m_filename(std::move(other.m_filename)), m_directory(std::move(other.m_directory)),
-         m_timezone(other.m_timezone)
+        :   m_mutex(), m_file(std::move(other.m_file)),
+            m_filename(std::move(other.m_filename)), m_directory(std::move(other.m_directory)),
+            m_logpattern(std::move(other.m_logpattern)), m_realpattern(std::move(other.m_realpattern)),
+            m_tofilter(std::move(other.m_tofilter)), m_filterin(other.m_filterin),m_timezone(other.m_timezone)
     {
         std::unique_lock lock(other.m_mutex);
         //other.m_file.close();
@@ -239,6 +240,7 @@ namespace kq
     template<typename T, typename C>
     void logger<T, C>::set_pattern(const string_type& new_pattern)
     {
+        std::unique_lock lock(m_mutex);
         m_logpattern    = new_pattern;
         m_realpattern   = convert_pattern(m_logpattern);
     }
@@ -246,12 +248,14 @@ namespace kq
     template<typename T, typename C>
     void logger<T, C>::set_time(time_zone tz) noexcept
     {
+        std::unique_lock lock(m_mutex);
         m_timezone = tz;
     }
 
     template<typename T, typename C>
-    void logger<T, C>::set_filter(const std::vector<event_type>& toFilter, bool filterMode = true)
+    void logger<T, C>::set_filter(const std::vector<event_type>& toFilter, bool filterMode)
     {
+        std::unique_lock lock(m_mutex);
         m_tofilter = toFilter;
         m_filterin = filterMode;
     }
@@ -259,6 +263,7 @@ namespace kq
     template<typename T, typename C>
     void logger<T, C>::backup()
     {
+        std::unique_lock lock(m_mutex);
         static bool initialized = false;
         if(!initialized)
         {
@@ -284,6 +289,7 @@ namespace kq
     void logger<T, C>::out(event_type _type, const log<event_type, encoding_type>& msg, 
     std::experimental::source_location sl)
     {
+        std::unique_lock lock(m_mutex);
         time_info ti = get_time();
         const string_type& message      = msg.fmt();                    // flag: %V -> 0 
         std::string_view type           = magic_enum::enum_name(_type);  // flag: %T -> 1
@@ -310,11 +316,18 @@ namespace kq
         // Check if the event_type has to be filtered out/in
         if(m_tofilter.size() > 0)
         {
-            auto it = std::find(m_tofilter.begin(), m_tofilter.end());
-            if ( (it == m_tofilter.end() && filterMode) ||  (it != m_tofilter.end() && !filterMode) )
-                return;
+            auto it = std::find(m_tofilter.begin(), m_tofilter.end(), _type);
+           if(m_filterin)
+           {
+                if(it == m_tofilter.end())
+                    return;
+           }
+           else
+           {
+                if(it != m_tofilter.end())
+                    return;
+           }
         }
-
         std::cout << fmt::format(m_realpattern, message, type, years,
              months, pretty_full_month, pretty_abbr_month, days,
              pretty_full_day, pretty_abbr_day, hours, minutes,
