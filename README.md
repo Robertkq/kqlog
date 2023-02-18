@@ -45,3 +45,11 @@ clone the repo and run `make install`, the script will clone [magic_enum](https:
 |`%F`|Caller's function name|"my_func"
 |`%s`|Caller's source file|"my_func_impl.cpp"
 |`%%`|The % sign|"%"
+|`%K`|Black color|<p style="color: black">"some *black* text"</p>
+|`%R`|Red color|<p style="color: red">"some *red* text"</p>
+|`%G`|Green color|<p style="color: green">some *green* text"</p>
+|`%y`|Yellow color|<p style="color: yellow">some *yellow* text"</p>
+|`%E`|Blue color|<p style="color: blue">some *blue* text</p>
+|`%g`|Magenta color|<p style="color: red">some *magenta* text"</p>
+|`%C`|Cyan oclor|<p style="color: cyan">some *cyan* text</p>
+|`%W`|White color|<p style="color: white">some *white* text"</p>
