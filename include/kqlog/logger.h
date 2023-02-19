@@ -15,6 +15,12 @@ namespace kq
         CRITICAL
     };
 
+#define KQINFO kq::default_symbols::INFO
+#define KQDEBUG kq::default_symbols::DEBUG
+#define KQWARNING kq::default_symbols::WARNING
+#define KQERROR kq::default_symbols::ERROR
+#define KQCRITICAL kq::default_symbols::CRITICAL
+
     enum class time_zone : uint8_t
     {
         UTC = 0,
