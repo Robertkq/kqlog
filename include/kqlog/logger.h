@@ -227,8 +227,8 @@ namespace kq
         void backup();
 
         template<typename... Args>
-        void out(event_type type, const log<event_type, encoding_type>& msg, const std::experimental::source_location sl =
-               std::experimental::source_location::current());
+        void out(event_type type, const log<event_type, encoding_type>& msg, int _line_ = __builtin_LINE(),
+            const char* _func_ = __builtin_FUNCTION(), const char* _file_ = __builtin_FILE() );
 
     private:
         std::mutex              m_mutex;
@@ -341,8 +341,8 @@ namespace kq
 
     template<typename T,typename C>
     template<typename... Args>
-    void logger<T, C>::out(event_type _type, const log<event_type, encoding_type>& msg, 
-    std::experimental::source_location sl)
+    void logger<T, C>::out(event_type _type, const log<event_type, encoding_type>& msg, int _line_, 
+            const char* _func_, const char* _file_)
     {
         std::unique_lock lock(m_mutex);
         time_info ti = get_time();
@@ -359,9 +359,9 @@ namespace kq
         string_type minutes             = ti.str_from_int(ti.min);      // flag: %N -> 10
         string_type seconds             = ti.str_from_int(ti.sec);      // flag: %S -> 11
         string_type thread              = ti.str_from_int(std::hash<std::thread::id>{}(std::this_thread::get_id())); // flag: %t -> 12
-        string_type line                = ti.str_from_int(sl.line());   // flag: %L -> 13
-        string_type function            = sl.function_name();           // flag: %F -> 14
-        string_type source              = sl.file_name();               // flag: %s -> 15
+        string_type line                = ti.str_from_int(_line_);      // flag: %L -> 13
+        string_type function            = _func_;                       // flag: %F -> 14
+        string_type source              = _file_;                       // flag: %s -> 15
 
         m_file << fmt::format(m_realpattern, message, type, years,
              months, pretty_full_month, pretty_abbr_month, days,

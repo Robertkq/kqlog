@@ -1,6 +1,6 @@
 #ifndef KQLOG_COMMON_TEST_H
 #define KQLOG_COMMON_TEST_H
-
+#include "catch.hpp"
 #include <iostream>
 #include <fstream>
 

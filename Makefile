@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 CXX = clang++
-CXXFLAGS = -O3 -Ivendor/magic_enum/include/ -Ivendor/fmt/include
+CXXFLAGS = -Ivendor/magic_enum/include/ -Ivendor/fmt/include
 CXXVERSION = -std=c++20
 SRC=tests/main.cpp
 SRC_TESTS=tests/main_test.cpp tests/test1.cpp tests/test2.cpp
