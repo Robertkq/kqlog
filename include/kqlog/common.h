@@ -1,6 +1,10 @@
 #ifndef KQLOG_COMMON_H
 #define KQLOG_COMMON_H
-
+#if defined (_WIN32)
+    #define _OS_COPY "copy "
+#elif defined (__linux__)
+    #define _OS_COPY "cp "
+#endif
 #define FMT_HEADER_ONLY
 
 #include <iostream>

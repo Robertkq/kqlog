@@ -2,7 +2,6 @@
 #define KQLOG_LOGGER_H
 
 #include "common.h"
-#include <ctime>
 
 namespace kq
 {
@@ -329,7 +328,7 @@ namespace kq
         string_type minute  = ti.str_from_int(ti.min);
         string_type second  = ti.str_from_int(ti.sec);
         string_type backreturn = year +"-" + month + "-" + day + "_" + hour + ":" + minute + ":" + second;
-        system((string_type("cp ") + m_directory + m_filename + string_type (" ") + m_directory
+        system((_OS_COPY + m_directory + m_filename + string_type (" ") + m_directory
          + string_type("backup/") + backreturn + string_type("-") + m_filename ).c_str());
         m_file.open(m_directory + m_filename, ofstream_type::app);
     }
@@ -361,7 +360,7 @@ namespace kq
         m_file << fmt::format(m_realpattern, message, type, years,
              months, pretty_full_month, pretty_abbr_month, days,
              pretty_full_day, pretty_abbr_day, hours, minutes,
-             seconds, thread, line, function, source);
+             seconds, thread, line, function, source) << "\033[0m";
 
         // Check if the event_type has to be filtered out/in
         if(m_tofilter.size() > 0)
