@@ -169,7 +169,7 @@ namespace kq
     template<typename T, typename C>
     template<typename... Args>
     log<T, C>::log(const string_type& fmt, Args&&... args)
-        : m_fmt(fmt::format(convert(fmt), std::forward<Args>(args)...))
+        : m_fmt(fmt::format(fmt::runtime(convert(fmt)), std::forward<Args>(args)...))
     {}
 
     template<typename T, typename C>
@@ -363,7 +363,7 @@ namespace kq
         string_type function            = _func_;                       // flag: %F -> 14
         string_type source              = _file_;                       // flag: %s -> 15
 
-        m_file << fmt::format(m_realpattern, message, type, years,
+        m_file << fmt::format(fmt::runtime(m_realpattern), message, type, years,
              months, pretty_full_month, pretty_abbr_month, days,
              pretty_full_day, pretty_abbr_day, hours, minutes,
              seconds, thread, line, function, source) << "\033[0m";
@@ -384,7 +384,7 @@ namespace kq
            }
         }
         if(!m_silent)
-        {   std::cout << fmt::format(m_realpattern, message, type, years,
+        {   std::cout << fmt::format(fmt::runtime(m_realpattern), message, type, years,
                 months, pretty_full_month, pretty_abbr_month, days,
                 pretty_full_day, pretty_abbr_day, hours, minutes,
                 seconds, thread, line, function, source) << "\033[0m";
