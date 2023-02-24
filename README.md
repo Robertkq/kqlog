@@ -14,16 +14,13 @@ clone the repo and run `make install`, the script will clone [magic_enum](https:
 ---
 * Header only
 * Allows user defined log types(/levels)
-* Log filtering (for console)
-* Log color (for console) (in progress)
+* Log filtering
+* Log color
 * Custom formtting for log pattern
 * Rich formatting, by [fmt](https://github.com/fmtlib/fmt)
 * Thread safe
 * Backup
 * xml for .npp log files (in progress)
-
-## Usage example
----
 
 ## Pattern flags
 | flag | meaning | example |
@@ -53,3 +50,21 @@ clone the repo and run `make install`, the script will clone [magic_enum](https:
 |`%g`|Magenta color|![magenta](https://placehold.co/15x15/magenta/magenta.png)|
 |`%C`|Cyan oclor|![cyan](https://placehold.co/15x15/cyan/cyan.png)|
 |`%W`|White color|![white](https://placehold.co/15x15/white/white.png)|
+
+## Usage example
+---
+### Rainbow
+```
+kq::logger Logger("logs.txt", "output/");
+    for(int i = 0; i < 10; ++i)
+    {
+        Logger.set_pattern("{%R}[{%Y}-{%M}-{%D}{%y} {%H}:{%N}:{%S}] {%G}[{%T}] {%E}[{%F}@{%L}] {%V}\n");
+        Logger.out(KQINFO, {"{%C} {0:5} {%g}START", i + 10});
+        Logger.set_pattern("{%y}[{%Y}-{%M}-{%D}{%G} {%H}:{%N}:{%S}] {%C}[{%T}] [{%F}@{%L}] {%V}\n");
+        Logger.out(KQDEBUG, {"{%g} {0:5} {%R}CONTINUE", i + 10});
+        Logger.set_pattern("{%G}[{%Y}-{%M}-{%D}{%C} {%H}:{%N}:{%S}] {%E}[{%T}] [{%F}@{%L}] {%V}\n");
+        Logger.out(KQCRITICAL, {"{%R} {0:5} {%E}END", i + 10});
+    }
+```
+![Rainbow Example]()
+

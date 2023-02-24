@@ -356,7 +356,7 @@ namespace kq
         string_type function            = _func_;                       // flag: %F -> 14
         string_type source              = _file_;                       // flag: %s -> 15
 
-        m_file << fmt::format(fmt::runtime(m_realpattern), message, type, years,
+        m_file << fmt::format(fmt::runtime(m_file_pattern), file_message, type, years,
              months, pretty_full_month, pretty_abbr_month, days,
              pretty_full_day, pretty_abbr_day, hours, minutes,
              seconds, thread, line, function, source);
