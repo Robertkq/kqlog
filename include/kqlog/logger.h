@@ -247,7 +247,6 @@ namespace kq
         {'%',"%"},{'K',"\033[30m"},{'R',"\033[31m"},{'G',"\033[32m"},{'y',"\033[33m"},
         {'E',"\033[34m"},{'g',"\033[35m"},{'C',"\033[36m"},{'W',"\033[37m"}
     };
-    // {0}/{1}/{2} {3}:{4}:{5} [{6}] [{7}:{8}] [Thr {9}] | {10}\n
 
     template<typename T, typename C>
     logger<T, C>::logger(const string_type& filename, const string_type& directory, time_zone tz)

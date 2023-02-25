@@ -66,5 +66,5 @@ kq::logger Logger("logs.txt", "output/");
         Logger.out(KQCRITICAL, {"{%R} {0:5} {%E}END", i + 10});
     }
 ```
-![Rainbow Example]()
+![Rainbow Example](https://github.com/Robertkq/kqlog/blob/main/img/RainbowExample.png)
 
