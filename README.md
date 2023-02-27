@@ -7,8 +7,8 @@ header-only, easy to use, C++ logging library
 clone the repo and run `make install`, the script will clone [magic_enum](https://github.com/Neargye/magic_enum), [fmt](https://github.com/fmtlib/fmt) in [vendor/](https://github.com/Robertkq/kqlog/tree/main/vendor)
 
 ## Platforms
-* Linux: clang 10.0
-* Windows: clang 10.0
+* Linux: clang 15.0.7
+* Windows: clang 15.0.7
 
 ## Features
 ---
@@ -66,7 +66,7 @@ Make sure to include any **/** in your directory
 ### Declare a logger with your own custom enum
 ```
 enum class myTypes { /* your types here */ };
-kq::logger<myTypes> logger("output.txt" "");
+kq::logger<myTypes> loggers;
 ```
 if no template argument is provided, kq::default_symbols is used as a default, containing:
 (macros)

@@ -11,4 +11,5 @@ TEST_CASE("Basic usage 1", "[Logger]")
 TEST_CASE("Basic usage 1 check", "[Logger]")
 {
     std::cout << "Check Check 1\n";
+    REQUIRE(compareFiles("output/test1_output.txt", "tests/test1_correct.txt"));
 }
