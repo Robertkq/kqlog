@@ -4,7 +4,11 @@ header-only, easy to use, C++ logging library
 
 ## Setup
 
-clone the repo and run `make install`, the script will clone [magic_enum](https://github.com/Neargye/magic_enum), [fmt](https://github.com/fmtlib/fmt) in [vendor/](https://github.com/Robertkq/kqlog/tree/main/vendor)
+clone the repo with `--recursive`, it will clone:
+[kqlog](https://github.com/Robertkq/kqlog)
+[fmt](https://github.com/fmtlib/fmt)
+[magic_enum](https://github.com/Neargye/magic_enum)
+[Catch2](https://github.com/catchorg/Catch2)
 
 ## Platforms
 * Linux: clang 15.0.7
