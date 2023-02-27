@@ -53,6 +53,46 @@ clone the repo and run `make install`, the script will clone [magic_enum](https:
 
 ## Usage example
 ---
+### Custom log file
+by default the logger will output into `./output/logs.txt` (filename="logs.txt", directory="output/")
+you can change it by providing a filename and directory in the constructor
+e.g
+```
+kq::logger logger("myfile.txt", "myDirectory/myOutputDirectory/");
+```
+Make sure to include any **/** in your directory
+
+---
+### Declare a logger with your own custom enum
+```
+enum class myTypes { /* your types here */ };
+kq::logger<myTypes> logger("output.txt" "");
+```
+if no template argument is provided, kq::default_symbols is used as a default, containing:
+(macros)
+1. KQDEBUG
+2. KQINFO
+3. KQWARNING
+4. KQERROR
+5. KQCRITICAL
+--- 
+### How to log with your logger
+call .out() with an enum type and a format string with all it's argument wrapped in {}
+e.g
+```
+logger.out( KQINFO, { "{} is a nice {}", "Today", "day" } );
+output: `[2023-02-27 06:38:11] [INFO] [main@07] Today is a nice day`
+```
+---
+### Custom pattern
+by default the logger will have the following pattern:
+```
+[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}
+```
+See [Pattern Flags](#Pattern Flags) for reference
+you can change this pattern with `.set_pattern()` and provide a string containing the new pattern
+to reset to the default pattern call the function with no arguments
+---
 ### Rainbow
 ```
 kq::logger Logger("logs.txt", "output/");

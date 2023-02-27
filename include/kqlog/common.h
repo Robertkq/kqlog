@@ -20,8 +20,8 @@ namespace kq
 {
     enum class default_symbols : uint8_t
     {
-        INFO,
         DEBUG,
+        INFO,
         WARNING,
         ERROR,
         CRITICAL
