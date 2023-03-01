@@ -82,7 +82,7 @@ if no template argument is provided, kq::default_symbols is used as a default, c
 5. KQCRITICAL
 --- 
 ### How to log with your logger
-call .out() with an enum type and a format string with all it's argument wrapped in {}
+call **.out()** with an enum type and a format string with all it's argument wrapped in {}
 e.g
 ```
 logger.out( KQINFO, { "{} is a nice {}", "Today", "day" } );
@@ -96,7 +96,7 @@ by default the logger will have the following pattern:
 ```
 
 see [Pattern Flags](#pattern-flags) for reference
-you can change this pattern with `.set_pattern()` and provide a string containing the new pattern
+you can change this pattern with **.set_pattern()** and provide a string containing the new pattern
 to reset to the default pattern call the function with no arguments
 
 ---
@@ -117,9 +117,9 @@ kq::logger Logger("logs.txt", "output/");
 
 ---
 ### How to filter your console output
-the .set_filter() function takes as parameters:   
-a vector containing values from the enum of choice
-a bool which if true, will only print the values found in the vector, if false, will only print the values NOT found in the vector   
+the **.set_filter()** function takes as parameters:   
+a vector containing values from the enum of choice   
+a bool which if true, will only print the values found in the vector, if false, will only print the values NOT found in the vector     
 (basically filter in/out)   
 example:
 ```cpp
@@ -129,11 +129,11 @@ example:
     logger.out( KQDEBUG,    { "Some debug message\n" } );
     logger.out( KQCRITICAL, { "Some critical message\n" } );
 ```
-with .set_filter({KQINFO}, true), we get the folloiwng console output:
+with **.set_filter({KQINFO}, true)**, we get the folloiwng console output:
 ```
 [2023-03-01 20:32:43] [INFO] [main@08] Some info message
 ```
-with .set_filter({KQINFO}, false), we get the following console output:
+with **.set_filter({KQINFO}, false)**, we get the following console output:
 ```
 [2023-03-01 20:33:35] [DEBUG] [main@09] Some debug message
 [2023-03-01 20:33:35] [CRITICAL] [main@10] Some critical message
@@ -141,7 +141,10 @@ with .set_filter({KQINFO}, false), we get the following console output:
 the file output does not experience any changes 
 ---
 ### Backup
-
+simply call **.backup()**
+it will create **backup/**  in the directory specified at construction   
+and will make a copy of the log file with the following pattern name:
+**{year}-{month}-{day}_{hour}:{min}:{sec}-{filename}**
 ---
 ### Other
 this project was made by [me](https://github.com/robertkq) and [norctus](https://github.com/norctus)   
