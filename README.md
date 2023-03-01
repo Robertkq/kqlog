@@ -115,6 +115,34 @@ kq::logger Logger("logs.txt", "output/");
 ```
 ![Rainbow Example](https://github.com/Robertkq/kqlog/blob/main/img/RainbowExample.png)
 
+---
+### How to filter your console output
+the .set_filter() function takes as parameters:   
+a vector containing values from the enum of choice
+a bool which if true, will only print the values found in the vector, if false, will only print the values NOT found in the vector   
+(basically filter in/out)   
+example:
+```cpp
+    kq::logger logger;
+    // logger.set_filter(.....)
+    logger.out( KQINFO,     { "Some info message\n" } );
+    logger.out( KQDEBUG,    { "Some debug message\n" } );
+    logger.out( KQCRITICAL, { "Some critical message\n" } );
+```
+with .set_filter({KQINFO}, true), we get the folloiwng console output:
+```
+[2023-03-01 20:32:43] [INFO] [main@08] Some info message
+```
+with .set_filter({KQINFO}, false), we get the following console output:
+```
+[2023-03-01 20:33:35] [DEBUG] [main@09] Some debug message
+[2023-03-01 20:33:35] [CRITICAL] [main@10] Some critical message
+```
+the file output does not experience any changes 
+---
+### Backup
+
+---
 ### Other
 this project was made by [me](https://github.com/robertkq) and [norctus](https://github.com/norctus)   
 we took inspiration from other loggers like [spdlog](https://github.com/gabime/spdlog) and [plog](https://github.com/SergiusTheBest/plog)   
