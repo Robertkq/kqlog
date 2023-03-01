@@ -208,7 +208,7 @@ namespace kq
 
         logger& operator=(const logger& other) = delete;
         logger& operator=(logger&& other);
-        void set_pattern(const string_type& new_pattern = "[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}\n");
+        void set_pattern(const string_type& new_pattern = "[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}");
         void set_time(time_zone tz) noexcept;
         void set_filter(const std::vector<event_type>& toFilter, bool filterMode = true);
         void set_silent(bool silent = true);
