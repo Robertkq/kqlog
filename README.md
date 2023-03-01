@@ -137,9 +137,9 @@ with **.set_filter({KQINFO}, false)**, we get the following console output:
 ```
 [2023-03-01 20:33:35] [DEBUG] [main@09] Some debug message
 [2023-03-01 20:33:35] [CRITICAL] [main@10] Some critical message
-```
-
+```   
 the file output does not experience any changes 
+
 ---
 ### Backup
 simply call **.backup()**
