@@ -6,10 +6,10 @@ minimum C++17
 ## Setup
 
 clone the repo with `--recursive`, it will clone:
-[kqlog](https://github.com/Robertkq/kqlog)
-[fmt](https://github.com/fmtlib/fmt)
-[magic_enum](https://github.com/Neargye/magic_enum)
-[Catch2](https://github.com/catchorg/Catch2)
+[kqlog](https://github.com/Robertkq/kqlog),
+[fmt](https://github.com/fmtlib/fmt),
+[magic_enum](https://github.com/Neargye/magic_enum),
+[Catch2](https://github.com/catchorg/Catch2).
 
 ## Platforms
 * Linux: clang 15.0.7
@@ -116,6 +116,6 @@ kq::logger Logger("logs.txt", "output/");
 ![Rainbow Example](https://github.com/Robertkq/kqlog/blob/main/img/RainbowExample.png)
 
 ### Other
-this project was made by [me](www.github.com/robertkq) and [norctus](www.github.com/norctus)
-we took inspiration from other loggers like [spdlog](https://github.com/gabime/spdlog) and [plog](https://github.com/SergiusTheBest/plog)
+this project was made by [me](www.github.com/robertkq) and [norctus](www.github.com/norctus)   
+we took inspiration from other loggers like [spdlog](https://github.com/gabime/spdlog) and [plog](https://github.com/SergiusTheBest/plog)   
 but we've added our on twist and took a more flexible and different approach on our logger
