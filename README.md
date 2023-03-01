@@ -1,6 +1,7 @@
 ## kqlog
 
 header-only, easy to use, C++ logging library
+minimum C++17
 
 ## Setup
 
@@ -114,3 +115,7 @@ kq::logger Logger("logs.txt", "output/");
 ```
 ![Rainbow Example](https://github.com/Robertkq/kqlog/blob/main/img/RainbowExample.png)
 
+### Other
+this project was made by [me](www.github.com/robertkq) and [norctus](www.github.com/norctus)
+we took inspiration from other loggers like [spdlog](https://github.com/gabime/spdlog) and [plog](https://github.com/SergiusTheBest/plog)
+but we've added our on twist and took a more flexible and different approach on our logger
