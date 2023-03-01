@@ -94,7 +94,7 @@ by default the logger will have the following pattern:
 [{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}
 ```
 
-See Pattern Flags for reference
+See [Pattern Flags](#-pattern-flags) for reference
 you can change this pattern with `.set_pattern()` and provide a string containing the new pattern
 to reset to the default pattern call the function with no arguments
 ---
