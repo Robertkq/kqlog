@@ -145,7 +145,7 @@ the file output does not experience any changes
 
 simply call **.backup()**
 it will create **backup/**  in the directory specified at construction   
-and will make a copy of the log file with the following pattern name:
+and will make a copy of the log file with the following pattern name:    
 **{year}-{month}-{day}_{hour}:{min}:{sec}-{filename}**
 
 ---
