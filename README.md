@@ -141,11 +141,13 @@ with **.set_filter({KQINFO}, false)**, we get the following console output:
 the file output does not experience any changes 
 
 ---
-### Backup
+### Backup   
+
 simply call **.backup()**
 it will create **backup/**  in the directory specified at construction   
 and will make a copy of the log file with the following pattern name:
 **{year}-{month}-{day}_{hour}:{min}:{sec}-{filename}**
+
 ---
 ### Other
 this project was made by [me](https://github.com/robertkq) and [norctus](https://github.com/norctus)   
