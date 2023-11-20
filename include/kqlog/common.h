@@ -23,7 +23,7 @@ namespace kq
         DEBUG,
         INFO,
         WARNING,
-        ERROR,
+        KQERROR,
         CRITICAL
     };
 }
@@ -31,7 +31,7 @@ namespace kq
 #define KQINFO kq::default_symbols::INFO
 #define KQDEBUG kq::default_symbols::DEBUG
 #define KQWARNING kq::default_symbols::WARNING
-#define KQERROR kq::default_symbols::ERROR
+#define KQERROR kq::default_symbols::KQERROR
 #define KQCRITICAL kq::default_symbols::CRITICAL
 
 #if defined (_WIN32)
