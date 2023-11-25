@@ -59,7 +59,7 @@ clone the repo with `--recursive`, it will clone:
 ## Usage example
 ---
 ### Custom log file
-by default the logger will output into `./output/logs.txt` (filename="logs.txt", directory="output/")
+by default the logger will output into `./logs.txt` (filename="logs.txt", directory="./")
 you can change it by providing a filename and directory in the constructor
 e.g
 ```

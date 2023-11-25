@@ -201,7 +201,7 @@ namespace kq
         using time_info     = time_info<encoding_type>;
 
     public:
-        logger(const string_type& filename = "logs.txt", const string_type& directory = "output/", time_zone = time_zone::UTC);
+        logger(const string_type& filename = "logs.txt", const string_type& directory = "./", time_zone = time_zone::UTC);
         logger(const logger& other) = delete;
         logger(logger&& other) noexcept;
         ~logger();
@@ -254,7 +254,8 @@ namespace kq
             m_logpattern("[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}" ), m_console_pattern("[{2}-{3}-{6} {9}:{10}:{11}] [{1}] [{14}@{13}] {0}"),
             m_file_pattern("[{2}-{3}-{6} {9}:{10}:{11}] [{1}] [{14}@{13}] {0}"), m_tofilter(), m_filterin(), m_timezone(tz), m_silent()
     {
-        system(""); // necessary sometimes to let the console know we are going to use ANSI escape color codes
+        system(nullptr); // necessary sometimes to let the console know we are going to use ANSI escape color codes
+        
     }
 
     template<typename T, typename C>
@@ -266,7 +267,7 @@ namespace kq
             m_timezone(other.m_timezone), m_silent(other.m_silent)
     {
         std::unique_lock lock(other.m_mutex);
-        system("");
+        system(nullptr);
     }
 
     template<typename T, typename C>
