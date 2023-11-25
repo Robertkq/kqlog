@@ -233,10 +233,12 @@ namespace kq
         bool                    m_silent;
 
         static std::unordered_map<C, string_type> s_flags;
+        static bool wasConsoleInitialized;
 
     private:
         time_info get_time() const;
         string_type convert_pattern(string_type, bool) const;
+        void initConsole() const;
     };
 
     //K, R, G, y, E, g, C, W
@@ -249,13 +251,15 @@ namespace kq
     };
 
     template<typename T, typename C>
+    bool logger<T, C>::wasConsoleInitialized = false;
+
+    template<typename T, typename C>
     logger<T, C>::logger(const string_type& filename, const string_type& directory, time_zone tz)
         :   m_mutex(), m_file(directory + filename, ofstream_type::out), m_filename(filename), m_directory(directory),
             m_logpattern("[{%Y}-{%M}-{%D} {%H}:{%N}:{%S}] [{%T}] [{%F}@{%L}] {%V}" ), m_console_pattern("[{2}-{3}-{6} {9}:{10}:{11}] [{1}] [{14}@{13}] {0}"),
             m_file_pattern("[{2}-{3}-{6} {9}:{10}:{11}] [{1}] [{14}@{13}] {0}"), m_tofilter(), m_filterin(), m_timezone(tz), m_silent()
     {
-        system(nullptr); // necessary sometimes to let the console know we are going to use ANSI escape color codes
-        
+        initConsole();
     }
 
     template<typename T, typename C>
@@ -267,7 +271,7 @@ namespace kq
             m_timezone(other.m_timezone), m_silent(other.m_silent)
     {
         std::unique_lock lock(other.m_mutex);
-        system(nullptr);
+        initConsole();
     }
 
     template<typename T, typename C>
@@ -429,6 +433,23 @@ namespace kq
             }
         }
         return logpattern;
+    }
+
+    template<typename T, typename C>
+    void logger<T, C>::initConsole() const
+    {
+        if (wasConsoleInitialized)
+            return;
+        wasConsoleInitialized = true;
+#ifdef WIN32
+        std::cout << "I got here!";
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        DWORD mode;
+        GetConsoleMode(hConsole, &mode);
+        SetConsoleMode(hConsole, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT);
+#elif
+        // I dont think any init is needed for other OSes
+#endif
     }
 
 } // namespace kq
