@@ -442,7 +442,6 @@ namespace kq
             return;
         wasConsoleInitialized = true;
 #ifdef WIN32
-        std::cout << "I got here!";
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         DWORD mode;
         GetConsoleMode(hConsole, &mode);
